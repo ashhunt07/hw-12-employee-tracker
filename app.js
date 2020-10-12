@@ -81,6 +81,18 @@ function viewDept() {
     });
 };
 
+// View all Roles
+function viewRole() {
+    console.log("Here are all current roles.")
+    let query = "SELECT name FROM role";
+    connection.query(query, function(err, res) {
+        if (err) throw err;
+        console.table(res);
+        runSearch();
+    });
+};
+
+
 
 //initialize program
 runSearch();
