@@ -124,6 +124,60 @@ function remove() {
 
 };
 
+// Add a new Employee
+function newEmployee() {
+    console.log("Add new employee information below.")
+
+    connection.query(
+        "SELECT * FROM role", (err, res) => {
+            if (err) throw err;
+
+            inquirer.prompt([{
+                        type: "input",
+                        message: "First Name?",
+                        name: "first_name",
+                    },
+                    {
+                        type: "input",
+                        message: "Last Name?",
+                        name: "last_name",
+                    },
+                    {
+                        name: "role",
+                        type: "list",
+                        message: "Company Role?",
+                        // choices: roleList
+                        choices: function() {
+                            var roleList = [];
+                            for (let i = 0; i < res.length; i++) {
+                                roleList.push(res[i].title);
+                            }
+                            return roleList;
+                        },
+                    }
+                ])
+                .then(function(answer) {
+                    let roleID = [];
+                    for (let i = 0; i < res.length; i++) {
+                        if (res[i].title == answer.role) {
+                            roleID = res[i].id;
+                        }
+                    }
+                    connection.query(
+                        "INSERT INTO employee SET ?", {
+                            first_name: answer.first_name,
+                            last_name: answer.last_name,
+                            role_id: roleID,
+                        },
+
+                        function(err) {
+                            if (err) throw err;
+                            console.log("Employee successfully added!");
+                            runSearch();
+                        });
+                });
+        });
+};
 
 
 //initialize program
