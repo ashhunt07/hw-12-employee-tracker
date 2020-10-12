@@ -1,19 +1,19 @@
-const { restoreDefaultPrompts } = require("inquirer");
 // Requirements
 var inquirer = require("inquirer");
 // const conTab = require('console.table');
 const connection = require("./connection");
 
 
+
 async function runSearch() {
     inquirer.prompt({
-        name: "options",
         type: "list",
         message: "What would you like to update?",
+        name: "options",
         choices: [
             "View all employees",
-            "View employees by department",
-            "View employees by role",
+            "View all departments",
+            "View all roles",
             "Update employee",
             "Remove employee",
             "Add a new employee",
@@ -31,10 +31,10 @@ async function runSearch() {
             case "View all employees":
                 return allEmployees();
                 break;
-            case "View employees by department":
+            case "View all department":
                 return viewDept();
                 break;
-            case "View employees by role":
+            case "View all roles":
                 return viewRole();
                 break;
                 // case "Update employee":
@@ -55,28 +55,27 @@ async function runSearch() {
             case "Quit":
                 connection.end();
                 break;
-        }
+        };
     });
-}
+};
 
 // View all Employee Inforamtion
 function allEmployees() {
     console.log("Here is a list of all current employees.")
-    let query = "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id";
-    connection.query(query, function(err, res) {
-        if (err) throw err;
-        console.table(res);
-        runSearch();
-    });
+    connection.query("SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id",
+        function(err, res) {
+            console.table(res);
+            if (err) throw err;
+            runSearch();
+        });
 };
 
 // View all Departments
 function viewDept() {
     console.log("Here are all current departments.")
-    let query = "SELECT name FROM department";
-    connection.query(query, function(err, res) {
-        if (err) throw err;
+    connection.query("SELECT * FROM department", function(err, res) {
         console.table(res);
+        if (err) throw err;
         runSearch();
     });
 };
@@ -84,10 +83,9 @@ function viewDept() {
 // View all Roles
 function viewRole() {
     console.log("Here are all current roles.")
-    let query = "SELECT name FROM role";
-    connection.query(query, function(err, res) {
-        if (err) throw err;
+    connection.query("SELECT * FROM role", function(err, res) {
         console.table(res);
+        if (err) throw err;
         runSearch();
     });
 };
@@ -115,7 +113,7 @@ function remove() {
                         `DELETE FROM employee WHERE concat(first_name, ' ' ,last_name) = '${res.employee}'`,
                         function(err, res) {
                             if (err) throw err;
-                            console.log("Employee deleted!\n");
+                            console.log("Employee deleted!");
                             runSearch();
                         });
                 });
@@ -178,6 +176,49 @@ function newEmployee() {
                 });
         });
 };
+
+
+// Add a new Department
+function newDept() {
+
+    inquirer.prompt([{
+        type: "input",
+        message: "Department Name:",
+        name: "department"
+    }, ])
+
+    .then(function(res) {
+        connection.query('INSERT INTO department (name) VALUES ?', [res.department], function(err, data) {
+            if (err) throw err;
+            console.table("Successfully Inserted");
+        })
+        runSearch();
+    })
+};
+
+
+function newRole() {
+    inquirer.prompt([{
+        type: "input",
+        message: "Enter Role:",
+        name: "title"
+    }, {
+        type: "number",
+        message: "Enter Salary:",
+        name: "salary"
+    }, {
+        message: "Enter department ID:",
+        type: "number",
+        name: "department_id"
+    }]).then(function(response) {
+        connection.query("INSERT INTO role (title, salary, department_id) values (?, ?, ?)", [response.title, response.salary, response.department_id], function(err, data) {
+            if (err) throw err;
+            // console.table(data);
+        })
+        runSearch();
+    })
+
+}
 
 
 //initialize program
