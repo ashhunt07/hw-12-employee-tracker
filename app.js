@@ -70,7 +70,16 @@ function allEmployees() {
     });
 };
 
-
+// View all Departments
+function viewDept() {
+    console.log("Here are all current departments.")
+    let query = "SELECT name FROM department";
+    connection.query(query, function(err, res) {
+        if (err) throw err;
+        console.table(res);
+        runSearch();
+    });
+};
 
 
 //initialize program
