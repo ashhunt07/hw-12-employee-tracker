@@ -93,6 +93,38 @@ function viewRole() {
 };
 
 
+// Remove an Employee
+function remove() {
+    console.log("Choose and employee to remove.")
+    let employeeList = [];
+    connection.query(
+        "SELECT employee.first_name, employee.last_name FROM employee", (err, res) => {
+            for (let i = 0; i < res.length; i++) {
+                employeeList.push(res[i].first_name + " " + res[i].last_name);
+            }
+            inquirer
+                .prompt([{
+                    type: "list",
+                    message: "Which employee would you like to delete?",
+                    name: "employeeChoice",
+                    choices: employeeList
+
+                }, ])
+                .then(function(res) {
+                    const query = connection.query(
+                        `DELETE FROM employee WHERE concat(first_name, ' ' ,last_name) = '${res.employee}'`,
+                        function(err, res) {
+                            if (err) throw err;
+                            console.log("Employee deleted!\n");
+                            runSearch();
+                        });
+                });
+        }
+    );
+
+};
+
+
 
 //initialize program
 runSearch();
