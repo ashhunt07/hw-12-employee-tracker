@@ -17,7 +17,7 @@ async function runSearch() {
             "View all employees",
             "View all departments",
             "View all roles",
-            // "Update employee",
+            "Update employee",
             "Remove employee",
             "Add a new employee",
             "Add a new department",
@@ -41,9 +41,9 @@ async function runSearch() {
             case "View all roles":
                 return viewRole();
                 break;
-                // case "Update employee":
-                //     return update();
-                //     break;
+            case "Update employee":
+                return update();
+                break;
             case "Remove employee":
                 return remove();
                 break;
@@ -97,6 +97,38 @@ function viewRole() {
     });
 };
 
+
+
+// Update an Employee Role
+function update() {
+
+    let allEmp = [];
+    connection.query(
+        "SELECT employee.id, employee.first_name, employee.last_name FROM employee", (err, res) => {
+            for (let i = 0; i < res.length; i++) {
+                allEmp.push(res[i].id + " " + res[i].first_name + " " + res[i].last_name);
+            }
+            inquirer.prompt([{
+                    type: "list",
+                    message: "Which employee would you like to update?",
+                    name: "updateEmployee",
+                    choices: allEmp
+                },
+                {
+                    type: "input",
+                    message: "What is your new role?",
+                    name: "role"
+                }
+            ]).then(function(res) {
+                connection.query(`UPDATE employee SET role_id = ${res.role} WHERE id = ${res.allEmp}`,
+                    function(err, res) {
+                        console.log(res);
+                        //updateRole(res);
+                        runSearch();
+                    });
+            });
+        });
+};
 
 
 // Remove an Employee
