@@ -26,6 +26,7 @@ async function runSearch() {
         ]
     })
 
+
     //Initialize list options
     .then(function(result) {
         console.log("You chose to: " + result.options);
@@ -62,6 +63,7 @@ async function runSearch() {
     });
 };
 
+
 // View all Employee Inforamtion
 function allEmployees() {
     console.log("Here is a list of all current employees.")
@@ -73,6 +75,7 @@ function allEmployees() {
         });
 };
 
+
 // View all Departments
 function viewDept() {
     console.log("Here are all current departments.")
@@ -83,6 +86,7 @@ function viewDept() {
     });
 };
 
+
 // View all Roles
 function viewRole() {
     console.log("Here are all current roles.")
@@ -92,6 +96,7 @@ function viewRole() {
         runSearch();
     });
 };
+
 
 
 // Remove an Employee
@@ -113,17 +118,8 @@ function remove() {
                 }, ])
                 .then(function(res) {
                     connection.query(
-                        // "DELETE employee WHERE id = ? AND first_name = ? AND last_name = ? = '${ id: res.employeeChoice }'",
-
-                        // "DELETE FROM employee WHERE ? = { id: res.employeeChoice }",
-
-                        // `DELETE FROM employee WHERE concat('id', 'first_name', 'last_name') VALUES = { id: res.employeeChoice }`,
-
-                        // 'DELETE FROM employee WHERE id = ?' [res.id, res.first_name, res.last_name],
-                        // 'DELETE FROM employee WHERE', { id: res.employeeChoice },
                         `DELETE FROM employee WHERE concat(id, ' ' ,first_name, ' ' ,last_name) = '${ res.employeeChoice }'`,
-                        // "DELETE FROM employee WHERE employee.id = ? AND employee.first_name = ? AND employee.last_name = ?", [res.id + " " + res.first_name + " " + res.last_name],
-                        // `DELETE FROM employee WHERE concat(first_name, ' ' ,last_name) = '${res.employee}'`,
+
                         function(err, res) {
                             if (err) throw err;
                             console.log("Employee deleted!");
