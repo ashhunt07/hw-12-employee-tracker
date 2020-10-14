@@ -1,23 +1,26 @@
 // Requirements
 var inquirer = require("inquirer");
-// const conTab = require('console.table');
+require('console.table');
 const connection = require("./connection");
 
+
+//initialize program
+runSearch();
 
 
 async function runSearch() {
     inquirer.prompt({
         type: "list",
-        message: "What would you like to update?",
+        message: "What would you like to do?",
         name: "options",
         choices: [
             "View all employees",
             "View all departments",
             "View all roles",
-            "Update employee",
+            // "Update employee",
             "Remove employee",
             "Add a new employee",
-            "Add a department",
+            "Add a new department",
             "Add a new role",
             "Quit"
         ]
@@ -31,7 +34,7 @@ async function runSearch() {
             case "View all employees":
                 return allEmployees();
                 break;
-            case "View all department":
+            case "View all departments":
                 return viewDept();
                 break;
             case "View all roles":
@@ -53,7 +56,7 @@ async function runSearch() {
                 return newRole();
                 break;
             case "Quit":
-                connection.end();
+                quit();
                 break;
         };
     });
@@ -96,9 +99,9 @@ function remove() {
     console.log("Choose and employee to remove.")
     let employeeList = [];
     connection.query(
-        "SELECT employee.first_name, employee.last_name FROM employee", (err, res) => {
+        "SELECT employee.id, employee.first_name, employee.last_name FROM employee", (err, res) => {
             for (let i = 0; i < res.length; i++) {
-                employeeList.push(res[i].first_name + " " + res[i].last_name);
+                employeeList.push(res[i].id + " " + res[i].first_name + " " + res[i].last_name);
             }
             inquirer
                 .prompt([{
@@ -109,8 +112,18 @@ function remove() {
 
                 }, ])
                 .then(function(res) {
-                    const query = connection.query(
-                        `DELETE FROM employee WHERE concat(first_name, ' ' ,last_name) = '${res.employee}'`,
+                    connection.query(
+                        // "DELETE employee WHERE id = ? AND first_name = ? AND last_name = ? = '${ id: res.employeeChoice }'",
+
+                        // "DELETE FROM employee WHERE ? = { id: res.employeeChoice }",
+
+                        // `DELETE FROM employee WHERE concat('id', 'first_name', 'last_name') VALUES = { id: res.employeeChoice }`,
+
+                        // 'DELETE FROM employee WHERE id = ?' [res.id, res.first_name, res.last_name],
+                        // 'DELETE FROM employee WHERE', { id: res.employeeChoice },
+                        `DELETE FROM employee WHERE concat(id, ' ' ,first_name, ' ' ,last_name) = '${ res.employeeChoice }'`,
+                        // "DELETE FROM employee WHERE employee.id = ? AND employee.first_name = ? AND employee.last_name = ?", [res.id + " " + res.first_name + " " + res.last_name],
+                        // `DELETE FROM employee WHERE concat(first_name, ' ' ,last_name) = '${res.employee}'`,
                         function(err, res) {
                             if (err) throw err;
                             console.log("Employee deleted!");
@@ -154,17 +167,17 @@ function newEmployee() {
                         },
                     }
                 ])
-                .then(function(answer) {
+                .then(function(res) {
                     let roleID = [];
                     for (let i = 0; i < res.length; i++) {
-                        if (res[i].title == answer.role) {
+                        if (res[i].title == res.role) {
                             roleID = res[i].id;
                         }
                     }
                     connection.query(
                         "INSERT INTO employee SET ?", {
-                            first_name: answer.first_name,
-                            last_name: answer.last_name,
+                            first_name: res.first_name,
+                            last_name: res.last_name,
                             role_id: roleID,
                         },
 
@@ -178,9 +191,7 @@ function newEmployee() {
 };
 
 
-// Add a new Department
 function newDept() {
-
     inquirer.prompt([{
         type: "input",
         message: "Department Name:",
@@ -188,13 +199,14 @@ function newDept() {
     }, ])
 
     .then(function(res) {
-        connection.query('INSERT INTO department (name) VALUES ?', [res.department], function(err, data) {
+        connection.query('INSERT INTO department (name) VALUES (?)', [res.department], function(err, data) {
             if (err) throw err;
-            console.table("Successfully Inserted");
+            console.log("Department successfully added!");
+            console.table(res);
+            runSearch();
         })
-        runSearch();
     })
-};
+}
 
 
 function newRole() {
@@ -211,15 +223,15 @@ function newRole() {
         type: "number",
         name: "department_id"
     }]).then(function(response) {
-        connection.query("INSERT INTO role (title, salary, department_id) values (?, ?, ?)", [response.title, response.salary, response.department_id], function(err, data) {
+        connection.query("INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)", [response.title, response.salary, response.department_id], function(err, data) {
             if (err) throw err;
-            // console.table(data);
+            console.table(response);
         })
         runSearch();
     })
-
 }
 
-
-//initialize program
-runSearch();
+function quit() {
+    connection.end();
+    process.exit();
+}
