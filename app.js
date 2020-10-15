@@ -195,17 +195,17 @@ function newEmployee() {
                         },
                     }
                 ])
-                .then(function(res) {
+                .then(function(answer) {
                     let roleID = [];
                     for (let i = 0; i < res.length; i++) {
-                        if (res[i].title == res.role) {
+                        if (res[i].title == answer.role) {
                             roleID = res[i].id;
                         }
                     }
                     connection.query(
                         "INSERT INTO employee SET ?", {
-                            first_name: res.first_name,
-                            last_name: res.last_name,
+                            first_name: answer.first_name,
+                            last_name: answer.last_name,
                             role_id: roleID,
                         },
 
