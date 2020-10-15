@@ -22,7 +22,7 @@ VALUES
 ('Raye', 'Hino', 1, 5), 
 ('Ami', 'Mizuno', 1, 3), 
 ('Makoto', 'Kino', 1, 4), 
-('Minako', 'Aino', 1, 8), 
+('Minako', 'Aino', 1, 5), 
 ('Mamoru', 'Chiba', null, 7);
 
 
